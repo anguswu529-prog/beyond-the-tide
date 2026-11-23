@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW" data-palette="mist">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>潮汐之外 — BEYOND THE TIDE</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=IBM+Plex+Mono:wght@300;400&family=Noto+Sans+TC:wght@300;400;500&family=Noto+Serif+TC:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles/tokens.css">
+  <link rel="stylesheet" href="./styles/main.css">
+  <link rel="stylesheet" href="./styles/panels.css">
+</head>
+<body>
+  <div class="stage-root" id="stage-root" data-view="title">
+
+    <!-- 滿版 WebGL2 莫蘭迪水彩霧海與孤寂燈塔著色器 -->
+    <canvas id="scene-gl" class="scene-canvas" aria-hidden="true"></canvas>
+
+    <!-- 高 DPI 詩意表層：懸浮微光塵、緩降空白信箋、水面擴散漣漪與細雨絲 -->
+    <canvas id="scene-overlay" class="scene-canvas" aria-hidden="true"></canvas>
+
+    <!-- 宣紙水彩纖維與底片微粒覆層（受系統設定即時調控） -->
+    <div class="paper-grain-layer" id="paper-grain-layer" aria-hidden="true"></div>
+
+    <!-- 無邊界留白水暈托底（確保主選單與底列文字達 WCAG AA+，視覺上如水彩留白） -->
+    <div class="mist-reserve-veil" aria-hidden="true"></div>
+
+    <!-- 東亞精裝版畫外框與四角微細對位短線 -->
+    <div class="cinema-frame" aria-hidden="true">
+      <span class="frame-tick tick-tl"></span>
+      <span class="frame-tick tick-tr"></span>
+      <span class="frame-tick tick-bl"></span>
+      <span class="frame-tick tick-br"></span>
+    </div>
+
+    <!-- ====================================================================
+         主標題畫面層（Title Screen）
+         ==================================================================== -->
+    <section class="title-layer" id="title-layer" aria-label="主標題與選單">
+      <!-- 右上直排題款主標題（與 66% 燈塔黃金錯位） -->
+      <header class="title-inscription">
+        <div class="inscription-epigraph">海霧未散以前，寄不出的信都停在潮線之外。</div>
+        <div class="inscription-sub-col" id="subtitle-col">
+          <span class="sub-hairline" aria-hidden="true"></span>
+          <span class="title-en">BEYOND THE TIDE</span>
+        </div>
+        <div class="inscription-main-col">
+          <h1 class="title-zh">潮汐之外</h1>
+          <span class="title-seal" aria-hidden="true">潮</span>
+        </div>
+      </header>
+
+      <!-- 左下非對稱卷軸目錄主選單（零卡片底盒、零按鈕外框） -->
+      <nav class="main-menu" id="main-menu" aria-label="遊戲主選單">
+        <ul class="menu-list" role="menu">
+          <li class="menu-item" role="none">
+            <button type="button" class="menu-btn" data-action="continue" data-index="0" role="menuitem">
+              <span class="menu-cursor" aria-hidden="true"><span class="cursor-line"></span><span class="cursor-diamond"></span></span>
+              <span class="menu-num">01</span>
+              <span class="menu-text-wrap">
+                <span class="menu-label">繼續旅途</span>
+                <span class="menu-meta" id="continue-meta">第二幕：退潮後的防波堤・02 小時 18 分</span>
+              </span>
+            </button>
+          </li>
+          <li class="menu-item" role="none">
+            <button type="button" class="menu-btn" data-action="newgame" data-index="1" role="menuitem">
+              <span class="menu-cursor" aria-hidden="true"><span class="cursor-line"></span><span class="cursor-diamond"></span></span>
+              <span class="menu-num">02</span>
+              <span class="menu-label">開啟新篇</span>
+            </button>
+          </li>
+          <li class="menu-item" role="none">
+            <button type="button" class="menu-btn" data-action="saves" data-index="2" role="menuitem">
+              <span class="menu-cursor" aria-hidden="true"><span class="cursor-line"></span><span class="cursor-diamond"></span></span>
+              <span class="menu-num">03</span>
+              <span class="menu-label">記憶存檔</span>
+            </button>
+          </li>
+          <li class="menu-item" role="none">
+            <button type="button" class="menu-btn" data-action="settings" data-index="3" role="menuitem">
+              <span class="menu-cursor" aria-hidden="true"><span class="cursor-line"></span><span class="cursor-diamond"></span></span>
+              <span class="menu-num">04</span>
+              <span class="menu-label">系統設定</span>
+            </button>
+          </li>
+          <li class="menu-item" role="none">
+            <button type="button" class="menu-btn" data-action="credits" data-index="4" role="menuitem">
+              <span class="menu-cursor" aria-hidden="true"><span class="cursor-line"></span><span class="cursor-diamond"></span></span>
+              <span class="menu-num">05</span>
+              <span class="menu-label">製作名單</span>
+            </button>
+          </li>
+          <li class="menu-item" role="none">
+            <button type="button" class="menu-btn" data-action="exit" data-index="5" role="menuitem">
+              <span class="menu-cursor" aria-hidden="true"><span class="cursor-line"></span><span class="cursor-diamond"></span></span>
+              <span class="menu-num">06</span>
+              <span class="menu-label">離開世界</span>
+            </button>
+          </li>
+        </ul>
+      </nav>
+    </section>
+
+    <!-- ====================================================================
+         記憶存檔：左側半透明宣紙摺頁（保留右側孤寂燈塔持續呼吸）
+         ==================================================================== -->
+    <aside class="paper-sheet sheet-left" id="panel-saves" aria-label="記憶存檔" aria-hidden="true">
+      <div class="sheet-inner">
+        <header class="sheet-header">
+          <div class="sheet-heading-group">
+            <span class="sheet-en">MEMORY ARCHIVE</span>
+            <p class="sheet-desc">選擇一頁記憶重返潮岸，或於空白信箋落筆新章。</p>
+          </div>
+          <div class="sheet-colophon" aria-hidden="true">記憶存檔</div>
+        </header>
+
+        <div class="save-slots-list" id="save-slots-list"></div>
+
+        <footer class="sheet-footer">
+          <button type="button" class="text-action-btn" data-close-panel>返回潮岸</button>
+          <span class="sheet-status-toast" id="save-toast" aria-live="polite"></span>
+        </footer>
+      </div>
+    </aside>
+
+    <!-- ====================================================================
+         系統設定：右側半透明宣紙摺頁（左半邊霧海即時呈現濾鏡與海霧變化）
+         ==================================================================== -->
+    <aside class="paper-sheet sheet-right" id="panel-settings" aria-label="系統設定" aria-hidden="true">
+      <div class="sheet-inner">
+        <header class="sheet-header">
+          <div class="sheet-heading-group">
+            <span class="sheet-en">SYSTEM PREFERENCES</span>
+            <p class="sheet-desc">所有光影、水色與排印設定皆即時反映於潮岸景緻。</p>
+          </div>
+          <div class="sheet-colophon" aria-hidden="true">系統設定</div>
+        </header>
+
+        <div class="settings-body" id="settings-body"></div>
+
+        <footer class="sheet-footer">
+          <button type="button" class="text-action-btn" id="btn-reset-settings">還原預設</button>
+          <span class="sheet-status-toast" id="settings-toast" aria-live="polite"></span>
+          <button type="button" class="text-action-btn is-accent" data-close-panel>封存並返回</button>
+        </footer>
+      </div>
+    </aside>
+
+    <!-- ====================================================================
+         製作名單：獨立電影節全幅捲動與片尾書信彩蛋
+         ==================================================================== -->
+    <section class="credits-layer" id="panel-credits" aria-label="製作名單" aria-hidden="true">
+      <div class="credits-viewport" id="credits-viewport">
+        <div class="credits-track" id="credits-track"></div>
+      </div>
+
+      <div class="credits-letter" id="credits-letter" aria-hidden="true">
+        <p class="letter-salutation">致 停留在霧港的人：</p>
+        <p class="letter-body">感謝你在這片沒有聲響的水色裡，願意多留片刻。<br>即使所有風景終究會隨退潮淡去，此刻被讀過的字句，已算作抵達。</p>
+        <div class="letter-sign">— 潮汐之外製作室・基隆北岬</div>
+        <button type="button" class="text-action-btn is-accent letter-return" data-close-panel>返回潮岸</button>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         開啟新篇：序章詩句逐行過場 -> 第一幕定場宣紙頁
+         ==================================================================== -->
+    <section class="prologue-layer" id="panel-prologue" aria-label="序章過場演出" aria-hidden="true">
+      <div class="prologue-stage" id="prologue-stage">
+        <div class="prologue-lines" id="prologue-lines"></div>
+        <div class="prologue-prompt" id="prologue-prompt">按下 ENTER 或輕觸畫面繼續</div>
+      </div>
+
+      <div class="act-card" id="act-card" aria-hidden="true">
+        <div class="act-card-inner">
+          <div class="act-card-visual">
+            <canvas id="act-thumb-canvas" width="1280" height="440" aria-hidden="true"></canvas>
+            <span class="act-postmark" id="act-postmark">ACT I・25°07'N</span>
+          </div>
+          <div class="act-card-meta">
+            <div class="act-meta-text">
+              <span class="act-en" id="act-en">ACT I — THE HARBOR CORRESPONDENT</span>
+              <h2 class="act-title" id="act-title">第一幕：霧港寄信人</h2>
+              <p class="act-location" id="act-location">北岬舊郵政出張所・石階口</p>
+              <p class="act-excerpt" id="act-excerpt"></p>
+              <p class="act-saved-note" id="act-saved-note">記憶已自動封存至存檔槽位</p>
+            </div>
+            <div class="act-vertical-stamp" id="act-vertical-stamp" aria-hidden="true">第一幕</div>
+          </div>
+          <div class="act-card-actions">
+            <button type="button" class="text-action-btn is-accent is-focused" id="btn-act-return" data-act-choice="0">暫時返回潮岸</button>
+            <button type="button" class="text-action-btn" id="btn-act-open-saves" data-act-choice="1">檢視記憶存檔</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         離開世界：無框留白確認幕與退潮告別書頁
+         ==================================================================== -->
+    <section class="exit-layer" id="panel-exit" aria-label="離開確認" aria-hidden="true">
+      <div class="exit-confirm-box" id="exit-confirm-box">
+        <p class="exit-question">要暫且闔上這封信，離開潮汐之外嗎？</p>
+        <div class="exit-choices">
+          <button type="button" class="exit-choice-btn is-focused" id="btn-exit-stay" data-exit-choice="0">
+            <span class="choice-diamond" aria-hidden="true"></span>留在霧港
+          </button>
+          <button type="button" class="exit-choice-btn" id="btn-exit-leave" data-exit-choice="1">
+            <span class="choice-diamond" aria-hidden="true"></span>闔上書頁
+          </button>
+        </div>
+      </div>
+
+      <div class="farewell-box" id="farewell-box" aria-hidden="true">
+        <p class="farewell-poem">潮水已經退到遠岸以外。<br>願你走出濃霧的時候，衣角依然乾燥。</p>
+        <span class="farewell-seal" aria-hidden="true">終</span>
+        <button type="button" class="text-action-btn is-accent farewell-reopen" id="btn-reopen-door">再次推開門扉</button>
+      </div>
+    </section>
+
+    <!-- 底部單機按鍵提示列與情境微印 -->
+    <footer class="bottom-bar" id="bottom-bar">
+      <div class="key-hints" id="key-hints">
+        <span class="key-hint"><kbd>↑↓</kbd> 選擇</span>
+        <span class="key-hint"><kbd>ENTER</kbd> 確認</span>
+        <span class="key-hint"><kbd>ESC</kbd> 返回</span>
+      </div>
+      <div class="locale-stamp" id="locale-stamp">青霧晨汐　25°07'N 121°44'E</div>
+    </footer>
+
+  </div>
+
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>

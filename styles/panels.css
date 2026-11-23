@@ -1,0 +1,953 @@
+/* ==========================================================================
+   《潮汐之外》半透明宣紙側展摺頁、手寫明信片存檔箋、自訂菱形滑桿、
+   電影節製作名單、序章過場與留白退潮確認層（零網頁彈窗感）
+   ========================================================================== */
+
+/* 通用文字型克制按鈕 */
+.text-action-btn {
+  position: relative;
+  font-family: var(--font-serif);
+  font-size: calc(0.9375rem * var(--font-scale));
+  letter-spacing: 0.16em;
+  color: var(--ink-secondary);
+  padding: 6px 2px;
+  border-bottom: 1px solid transparent;
+  transition: color 240ms ease, border-color 240ms ease;
+}
+
+.text-action-btn:hover,
+.text-action-btn:focus-visible {
+  color: var(--ink-primary);
+  border-bottom-color: var(--line-focus);
+}
+
+.text-action-btn.is-accent {
+  color: var(--accent);
+  font-weight: 500;
+}
+
+.text-action-btn.is-accent:hover {
+  border-bottom-color: var(--accent);
+}
+
+/* ==========================================================================
+   半透明手作宣紙摺頁（P0-3：底緣抬升 48px 讓出底部操作列獨立呼吸廊道）
+   ========================================================================== */
+.paper-sheet {
+  position: absolute;
+  top: var(--frame-inset);
+  bottom: calc(var(--frame-inset) + 48px);
+  z-index: 18;
+  background-color: var(--paper-sheet-bg);
+  backdrop-filter: blur(6px) saturate(0.92);
+  -webkit-backdrop-filter: blur(6px) saturate(0.92);
+  border-bottom: 1px solid var(--line-subtle);
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    transform var(--dur-sheet) var(--ease-tide),
+    opacity 380ms var(--ease-tide),
+    background-color var(--dur-palette) var(--ease-tide);
+}
+
+.sheet-left {
+  left: var(--frame-inset);
+  width: clamp(490px, 53vw, 720px);
+  border-right: 1px solid var(--line-subtle);
+  transform: translateX(-28px);
+}
+
+.sheet-right {
+  right: var(--frame-inset);
+  width: clamp(435px, 43vw, 560px);
+  border-left: 1px solid var(--line-subtle);
+  transform: translateX(28px);
+}
+
+.stage-root[data-view="saves"] .sheet-left,
+.stage-root[data-view="settings"] .sheet-right {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateX(0);
+}
+
+.sheet-inner {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: clamp(22px, 3vh, 34px) clamp(26px, 3vw, 42px) clamp(18px, 2.2vh, 24px);
+  gap: 14px;
+}
+
+.sheet-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--line-subtle);
+}
+
+.sheet-heading-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.sheet-en {
+  font-family: var(--font-display-en);
+  font-size: calc(0.75rem * var(--font-scale));
+  letter-spacing: 0.3em;
+  color: var(--accent);
+}
+
+.sheet-desc {
+  font-family: var(--font-sans);
+  font-size: calc(0.84rem * var(--font-scale));
+  letter-spacing: 0.05em;
+  line-height: 1.65;
+  color: var(--ink-secondary);
+}
+
+.sheet-colophon {
+  writing-mode: vertical-rl;
+  text-orientation: upright;
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: calc(1.25rem * var(--font-scale));
+  letter-spacing: 0.28em;
+  line-height: 1.2;
+  color: var(--ink-primary);
+  padding-left: 12px;
+  border-left: 1px solid var(--line-subtle);
+}
+
+.sheet-footer {
+  margin-top: auto;
+  padding-top: 12px;
+  border-top: 1px solid var(--line-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.sheet-status-toast {
+  font-family: var(--font-sans);
+  font-size: calc(0.78rem * var(--font-scale));
+  letter-spacing: 0.08em;
+  color: var(--accent);
+}
+
+/* ==========================================================================
+   記憶存檔：3 張手寫明信片風圖文存檔箋（內建原位確認覆層）
+   ========================================================================== */
+.save-slots-list {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 13px;
+}
+
+.save-card {
+  position: relative;
+  display: grid;
+  grid-template-columns: 142px minmax(0, 1fr);
+  gap: 18px;
+  padding: 13px 15px;
+  border: 1px solid var(--line-subtle);
+  background-color: var(--paper-card-bg);
+  transition: border-color 260ms ease, background-color 260ms ease;
+}
+
+.save-card.is-focused,
+.save-card:hover {
+  border-color: var(--line-focus);
+  background-color: var(--paper-card-hover);
+  box-shadow: inset 2px 0 0 var(--accent);
+}
+
+.save-card.is-empty {
+  border-style: dashed;
+}
+
+.save-thumb-box {
+  position: relative;
+  width: 142px;
+  height: 92px;
+  border: 1px solid var(--line-subtle);
+  overflow: hidden;
+  align-self: center;
+}
+
+.save-thumb-canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.save-postmark {
+  position: absolute;
+  top: 5px;
+  left: 6px;
+  padding: 1px 5px;
+  background-color: rgba(var(--paper-rgb), 0.78);
+  border: 1px solid var(--line-subtle);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  color: var(--ink-primary);
+}
+
+.save-info {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 0;
+}
+
+.save-top-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.save-chapter {
+  font-family: var(--font-serif);
+  font-weight: 500;
+  font-size: calc(1rem * var(--font-scale));
+  letter-spacing: 0.08em;
+  color: var(--ink-primary);
+}
+
+.save-time {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--ink-secondary);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.save-sub-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-sans);
+  font-size: calc(0.75rem * var(--font-scale));
+  letter-spacing: 0.05em;
+  color: var(--ink-secondary);
+}
+
+.save-excerpt {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: calc(0.8125rem * var(--font-scale));
+  letter-spacing: 0.04em;
+  line-height: 1.62;
+  color: var(--ink-secondary);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.save-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 3px;
+}
+
+.slot-btn {
+  font-family: var(--font-sans);
+  font-size: calc(0.75rem * var(--font-scale));
+  letter-spacing: 0.12em;
+  color: var(--ink-secondary);
+  border-bottom: 1px solid transparent;
+  padding-bottom: 1px;
+  transition: color 200ms ease, border-color 200ms ease;
+}
+
+.slot-btn:hover {
+  color: var(--ink-primary);
+  border-bottom-color: var(--line-focus);
+}
+
+.slot-btn.is-primary {
+  color: var(--accent);
+  font-weight: 500;
+}
+
+.slot-btn.is-danger:hover {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
+/* 原位二次確認覆層（絕不堆疊第二層網頁彈窗） */
+.slot-confirm-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  background-color: rgba(var(--paper-rgb), 0.94);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 14px 20px;
+  text-align: center;
+}
+
+.slot-confirm-msg {
+  font-family: var(--font-serif);
+  font-size: calc(0.875rem * var(--font-scale));
+  letter-spacing: 0.08em;
+  color: var(--ink-primary);
+}
+
+.slot-confirm-btns {
+  display: flex;
+  gap: 22px;
+}
+
+/* ==========================================================================
+   系統設定：自製 1px 細軌菱形游標滑桿與印記式開關（零原生表單醜態）
+   ========================================================================== */
+.settings-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding-right: 4px;
+}
+
+.settings-group {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--line-subtle);
+}
+
+.settings-group:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.group-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.group-title {
+  font-family: var(--font-serif);
+  font-size: calc(0.875rem * var(--font-scale));
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  color: var(--ink-primary);
+}
+
+.group-tag {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.12em;
+  color: var(--ink-secondary);
+}
+
+.setting-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 14px;
+  padding: 4px 0 4px 8px;
+  border-left: 2px solid transparent;
+  transition: border-color 180ms ease, background-color 180ms ease;
+}
+
+.setting-row.is-focused {
+  border-left-color: var(--accent);
+  background-color: rgba(var(--accent-rgb), 0.045);
+}
+
+.setting-row.is-focused .setting-label {
+  color: var(--accent);
+}
+
+.setting-label {
+  font-family: var(--font-sans);
+  font-size: calc(0.84rem * var(--font-scale));
+  letter-spacing: 0.06em;
+  color: var(--ink-primary);
+  white-space: nowrap;
+}
+
+/* 三套莫蘭迪濾鏡選項 */
+.palette-choices {
+  display: flex;
+  gap: 8px;
+}
+
+.seal-choice-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 9px;
+  border: 1px solid var(--line-subtle);
+  font-family: var(--font-sans);
+  font-size: calc(0.76rem * var(--font-scale));
+  letter-spacing: 0.08em;
+  color: var(--ink-secondary);
+  transition: border-color 200ms ease, color 200ms ease, background-color 200ms ease;
+}
+
+.seal-choice-btn:hover {
+  border-color: var(--line-focus);
+  color: var(--ink-primary);
+}
+
+.seal-choice-btn.is-active {
+  border-color: var(--accent);
+  background-color: rgba(var(--accent-rgb), 0.09);
+  color: var(--ink-primary);
+}
+
+.swatch-dot {
+  width: 7px;
+  height: 7px;
+  border: 1px solid var(--line-subtle);
+}
+
+/* 自製 1px 細軌菱形墨點滑桿 */
+.ink-slider-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 0 1 196px;
+  width: 196px;
+}
+
+.ink-slider {
+  position: relative;
+  flex: 1;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  cursor: ew-resize;
+  touch-action: none;
+}
+
+.ink-slider-track {
+  position: relative;
+  width: 100%;
+  height: 1px;
+  background-color: var(--line-subtle);
+}
+
+.ink-slider-fill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 1px;
+  background-color: var(--accent);
+}
+
+.ink-slider-thumb {
+  position: absolute;
+  top: 50%;
+  width: 7px;
+  height: 7px;
+  background-color: var(--accent);
+  transform: translate(-50%, -50%) rotate(45deg);
+  transition: transform 160ms ease;
+}
+
+.ink-slider:hover .ink-slider-thumb {
+  transform: translate(-50%, -50%) rotate(45deg) scale(1.22);
+}
+
+.ink-slider-val {
+  min-width: 34px;
+  text-align: right;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--ink-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+/* 印記式二選一開關 */
+.seal-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.toggle-opt {
+  font-family: var(--font-sans);
+  font-size: calc(0.78rem * var(--font-scale));
+  letter-spacing: 0.1em;
+  color: var(--ink-muted);
+  padding-bottom: 2px;
+  border-bottom: 1px solid transparent;
+  transition: color 200ms ease, border-color 200ms ease;
+}
+
+.toggle-opt.is-active {
+  color: var(--accent);
+  font-weight: 500;
+  border-bottom-color: var(--accent);
+}
+
+.silent-note {
+  font-family: var(--font-sans);
+  font-size: calc(0.74rem * var(--font-scale));
+  letter-spacing: 0.05em;
+  color: var(--ink-secondary);
+  line-height: 1.55;
+}
+
+/* ==========================================================================
+   電影節製作名單捲動與片尾獨立書信彩蛋
+   ========================================================================== */
+.credits-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 16;
+  background: radial-gradient(ellipse 68% 82% at 50% 50%, rgba(var(--paper-rgb), 0.72) 0%, rgba(var(--paper-rgb), 0.36) 72%, rgba(var(--paper-rgb), 0.12) 100%);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 520ms var(--ease-tide);
+}
+
+.stage-root[data-view="credits"] .credits-layer {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.credits-viewport {
+  position: absolute;
+  inset: clamp(64px, 9vh, 96px) 0 clamp(76px, 10vh, 108px);
+  overflow: hidden;
+  mask-image: linear-gradient(to bottom, transparent 0%, black 14%, black 84%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 14%, black 84%, transparent 100%);
+}
+
+.credits-track {
+  width: min(520px, 84vw);
+  margin: 0 auto;
+  text-align: center;
+  will-change: transform;
+}
+
+.credit-block {
+  margin-bottom: 46px;
+}
+
+.credit-title-main {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: calc(1.9rem * var(--font-scale));
+  letter-spacing: 0.36em;
+  color: var(--ink-primary);
+  margin-bottom: 10px;
+}
+
+.credit-sub-en {
+  font-family: var(--font-display-en);
+  font-size: 0.92rem;
+  font-weight: 400;
+  letter-spacing: 0.34em;
+  color: var(--accent);
+}
+
+.credit-role {
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  color: var(--accent);
+  margin-bottom: 10px;
+}
+
+.credit-name {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: calc(1.0625rem * var(--font-scale));
+  letter-spacing: 0.18em;
+  line-height: 2.05;
+  color: var(--ink-primary);
+}
+
+.credits-letter {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -46%);
+  width: min(480px, 82vw);
+  padding: 36px 40px;
+  background-color: var(--paper-sheet-bg);
+  border: 1px solid var(--line-subtle);
+  text-align: left;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 700ms var(--ease-tide), transform 700ms var(--ease-tide);
+}
+
+.credits-letter.is-visible {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translate(-50%, -50%);
+}
+
+.letter-salutation {
+  font-family: var(--font-serif);
+  font-size: calc(1rem * var(--font-scale));
+  letter-spacing: 0.14em;
+  color: var(--ink-primary);
+  margin-bottom: 18px;
+}
+
+.letter-body {
+  font-family: var(--font-serif);
+  font-weight: 300;
+  font-size: calc(0.9375rem * var(--font-scale));
+  letter-spacing: 0.08em;
+  line-height: 2.15;
+  color: var(--ink-secondary);
+  margin-bottom: 24px;
+}
+
+.letter-sign {
+  font-family: var(--font-serif);
+  font-size: calc(0.84rem * var(--font-scale));
+  letter-spacing: 0.14em;
+  color: var(--ink-primary);
+  text-align: right;
+  margin-bottom: 24px;
+}
+
+.letter-return {
+  display: inline-block;
+}
+
+/* ==========================================================================
+   序章過場演出 -> 第一幕宣紙定場頁
+   ========================================================================== */
+.prologue-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  background: radial-gradient(ellipse 75% 75% at 50% 50%, rgba(var(--paper-rgb), 0.78) 0%, rgba(var(--paper-rgb), 0.45) 75%, rgba(var(--paper-rgb), 0.25) 100%);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 640ms var(--ease-tide);
+}
+
+.stage-root[data-view="prologue"] .prologue-layer,
+.stage-root[data-view="act1"] .prologue-layer {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.prologue-stage {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 36px;
+  padding: 40px;
+  transition: opacity 480ms ease;
+}
+
+.stage-root[data-view="act1"] .prologue-stage {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.prologue-lines {
+  width: min(620px, 84vw);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  text-align: center;
+}
+
+.prologue-line {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: calc(1.125rem * var(--font-scale));
+  letter-spacing: 0.14em;
+  line-height: 2;
+  color: var(--ink-primary);
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 900ms var(--ease-tide), transform 900ms var(--ease-tide);
+}
+
+.prologue-line.is-shown {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.prologue-prompt {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  letter-spacing: 0.2em;
+  color: var(--ink-secondary);
+}
+
+/* 第一幕定場宣紙畫框頁（P1-5 雙層卡紙裱框質感 + P0-2 等比畫框） */
+.act-card {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -48%);
+  width: min(740px, 86vw);
+  background-color: var(--paper-sheet-bg);
+  backdrop-filter: blur(6px);
+  border: 1px solid var(--line-subtle);
+  box-shadow: inset 0 0 0 6px rgba(var(--paper-rgb), 0.55), inset 0 0 0 7px var(--line-subtle);
+  padding: 32px 38px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 620ms var(--ease-tide), transform 620ms var(--ease-tide);
+}
+
+.stage-root[data-view="act1"] .act-card {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translate(-50%, -50%);
+}
+
+.act-card-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.act-card-visual {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 5.5;
+  border: 1px solid var(--line-subtle);
+  overflow: hidden;
+}
+
+#act-thumb-canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.act-postmark {
+  position: absolute;
+  bottom: 10px;
+  right: 12px;
+  padding: 2px 8px;
+  background-color: rgba(var(--paper-rgb), 0.82);
+  border: 1px solid var(--line-subtle);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  color: var(--ink-primary);
+}
+
+.act-card-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.act-meta-text {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.act-en {
+  font-family: var(--font-display-en);
+  font-size: 0.8rem;
+  letter-spacing: 0.28em;
+  color: var(--accent);
+}
+
+.act-title {
+  font-family: var(--font-serif);
+  font-weight: 500;
+  font-size: calc(1.45rem * var(--font-scale));
+  letter-spacing: 0.14em;
+  color: var(--ink-primary);
+}
+
+.act-location {
+  font-family: var(--font-sans);
+  font-size: calc(0.84rem * var(--font-scale));
+  letter-spacing: 0.08em;
+  color: var(--ink-secondary);
+}
+
+.act-excerpt {
+  font-family: var(--font-serif);
+  font-size: calc(0.92rem * var(--font-scale));
+  letter-spacing: 0.06em;
+  line-height: 1.9;
+  color: var(--ink-secondary);
+  margin-top: 4px;
+}
+
+.act-saved-note {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  letter-spacing: 0.1em;
+  color: var(--accent);
+  margin-top: 6px;
+}
+
+.act-vertical-stamp {
+  writing-mode: vertical-rl;
+  text-orientation: upright;
+  font-family: var(--font-serif);
+  font-size: 1.35rem;
+  letter-spacing: 0.34em;
+  color: var(--ink-secondary);
+  padding-left: 16px;
+  border-left: 1px solid var(--line-subtle);
+}
+
+.act-card-actions {
+  display: flex;
+  justify-content: space-between;
+  padding-top: 14px;
+  border-top: 1px solid var(--line-subtle);
+}
+
+.text-action-btn.is-focused {
+  color: var(--ink-primary);
+  border-bottom-color: var(--accent);
+}
+
+/* ==========================================================================
+   離開世界：無框留白確認與自然清透退潮告別（P0-5 廢除糊片灰十字）
+   ========================================================================== */
+.exit-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 22;
+  background: radial-gradient(ellipse 56% 52% at 50% 48%, rgba(var(--paper-rgb), 0.86) 0%, rgba(var(--paper-rgb), 0.56) 56%, rgba(var(--paper-rgb), 0.18) 100%);
+  backdrop-filter: blur(1.2px);
+  -webkit-backdrop-filter: blur(1.2px);
+  display: grid;
+  place-items: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 540ms var(--ease-tide);
+}
+
+.stage-root[data-view="exit-confirm"] .exit-layer,
+.stage-root[data-view="farewell"] .exit-layer {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.stage-root[data-view="farewell"] .exit-layer {
+  background: radial-gradient(ellipse 52% 48% at 50% 48%, rgba(var(--paper-rgb), 0.88) 0%, rgba(var(--paper-rgb), 0.54) 52%, rgba(var(--paper-rgb), 0.14) 100%);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+.exit-confirm-box,
+.farewell-box {
+  grid-area: 1 / 1;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 28px;
+  transition: opacity 520ms var(--ease-tide), transform 520ms var(--ease-tide);
+}
+
+.stage-root[data-view="farewell"] .exit-confirm-box {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-8px);
+}
+
+.farewell-box {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(10px);
+}
+
+.stage-root[data-view="farewell"] .farewell-box {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+.exit-question,
+.farewell-poem {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: calc(1.18rem * var(--font-scale));
+  letter-spacing: 0.16em;
+  line-height: 2.1;
+  color: var(--ink-primary);
+}
+
+.exit-choices {
+  display: flex;
+  gap: 44px;
+}
+
+.exit-choice-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  font-family: var(--font-serif);
+  font-size: calc(1rem * var(--font-scale));
+  letter-spacing: 0.2em;
+  color: var(--ink-secondary);
+  padding: 6px 4px;
+  border-bottom: 1px solid transparent;
+  transition: color 240ms ease, border-color 240ms ease;
+}
+
+.choice-diamond {
+  width: 5px;
+  height: 5px;
+  background-color: var(--accent);
+  transform: rotate(45deg);
+  opacity: 0;
+  transition: opacity 240ms ease;
+}
+
+.exit-choice-btn.is-focused,
+.exit-choice-btn:hover {
+  color: var(--ink-primary);
+  border-bottom-color: var(--accent);
+}
+
+.exit-choice-btn.is-focused .choice-diamond,
+.exit-choice-btn:hover .choice-diamond {
+  opacity: 1;
+}
+
+.farewell-seal {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  font-family: var(--font-serif);
+  font-size: 12px;
+}

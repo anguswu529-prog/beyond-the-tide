@@ -1,0 +1,154 @@
+/* ==========================================================================
+   《潮汐之外》三套莫蘭迪濕水彩色票矩陣與台灣繁體文學微排印變數
+   所有背景彩度鎖定 C <= 0.032，宣紙與畫布文字全面通過 WCAG AA / AAA
+   ========================================================================== */
+
+:root {
+  --font-serif: 'Noto Serif TC', 'Songti TC', 'PMingLiU', Georgia, serif;
+  --font-sans: 'Noto Sans TC', 'PingFang TC', 'Microsoft JhengHei', sans-serif;
+  --font-display-en: 'Cormorant Garamond', Georgia, serif;
+  --font-mono: 'IBM Plex Mono', 'SFMono-Regular', Consolas, monospace;
+
+  --font-scale: 1;
+  --grain-opacity: 0.24;
+
+  --ease-tide: cubic-bezier(0.22, 1, 0.36, 1);
+  --dur-palette: 720ms;
+  --dur-sheet: 480ms;
+  --dur-cursor: 320ms;
+
+  --frame-inset: clamp(16px, 2vw, 28px);
+  --edge-x: clamp(48px, 6.8vw, 112px);
+}
+
+/* 濾鏡一：青霧晨汐（主預設・破曉冷青） */
+:root,
+[data-palette="mist"] {
+  --sky-upper: #6F878E;
+  --sky-mid: #B6C7C6;
+  --horizon-glow: #E4E9E5;
+  --water-far: #A9BCBF;
+  --water-near: #91A6AC;
+  --shore-ink: #2E4048;
+
+  --paper-hex: #F5F2EB;
+  --paper-rgb: 245, 242, 235;
+  --paper-sheet-bg: rgba(245, 242, 235, 0.87);
+  --paper-card-bg: rgba(249, 247, 242, 0.64);
+  --paper-card-hover: rgba(252, 250, 246, 0.86);
+
+  --ink-primary: #1C2A30;
+  --ink-primary: oklch(0.27 0.022 215);
+  --ink-secondary: #3F5159;
+  --ink-secondary: oklch(0.42 0.024 215);
+  --ink-muted: #52646C;
+
+  --accent: #734231;
+  --accent: oklch(0.44 0.078 40);
+  --accent-rgb: 115, 66, 49;
+
+  --line-subtle: rgba(28, 42, 48, 0.18);
+  --line-frame: rgba(28, 42, 48, 0.14);
+  --line-focus: rgba(115, 66, 49, 0.58);
+}
+
+/* 濾鏡二：暮靄玫瑰（薄暮煙燻藕荷） */
+[data-palette="rose"] {
+  --sky-upper: #7B6972;
+  --sky-mid: #C2B0B4;
+  --horizon-glow: #E9DFDA;
+  --water-far: #B8A8AD;
+  --water-near: #A29198;
+  --shore-ink: #3B2F36;
+
+  --paper-hex: #F6F1EE;
+  --paper-rgb: 246, 241, 238;
+  --paper-sheet-bg: rgba(246, 241, 238, 0.87);
+  --paper-card-bg: rgba(250, 246, 244, 0.64);
+  --paper-card-hover: rgba(253, 250, 248, 0.86);
+
+  --ink-primary: #261D22;
+  --ink-primary: oklch(0.24 0.018 345);
+  --ink-secondary: #51424A;
+  --ink-secondary: oklch(0.40 0.022 345);
+  --ink-muted: #615059;
+
+  --accent: #7D3F4B;
+  --accent: oklch(0.44 0.082 5);
+  --accent-rgb: 125, 63, 75;
+
+  --line-subtle: rgba(38, 29, 34, 0.18);
+  --line-frame: rgba(38, 29, 34, 0.14);
+  --line-focus: rgba(125, 63, 75, 0.58);
+}
+
+/* 濾鏡三：銀灰靜雨（梅雨冷鉛銀） */
+[data-palette="rain"] {
+  --sky-upper: #76808A;
+  --sky-mid: #BEC5CB;
+  --horizon-glow: #E4E7EA;
+  --water-far: #B3BBC2;
+  --water-near: #9BA4AC;
+  --shore-ink: #2A323A;
+
+  --paper-hex: #F3F4F5;
+  --paper-rgb: 243, 244, 245;
+  --paper-sheet-bg: rgba(243, 244, 245, 0.88);
+  --paper-card-bg: rgba(248, 249, 250, 0.66);
+  --paper-card-hover: rgba(252, 253, 254, 0.88);
+
+  --ink-primary: #1B2127;
+  --ink-primary: oklch(0.24 0.012 245);
+  --ink-secondary: #454E58;
+  --ink-secondary: oklch(0.41 0.015 245);
+  --ink-muted: #55606B;
+
+  --accent: #35536B;
+  --accent: oklch(0.43 0.055 238);
+  --accent-rgb: 53, 83, 107;
+
+  --line-subtle: rgba(27, 33, 39, 0.18);
+  --line-frame: rgba(27, 33, 39, 0.14);
+  --line-focus: rgba(53, 83, 107, 0.58);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background-color: var(--sky-mid);
+  color: var(--ink-primary);
+  font-family: var(--font-sans);
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  user-select: none;
+  transition: color var(--dur-palette) var(--ease-tide);
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+}
+
+button:focus-visible {
+  outline: 1px solid var(--line-focus);
+  outline-offset: 4px;
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+}

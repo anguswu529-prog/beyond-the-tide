@@ -1,0 +1,408 @@
+/* ==========================================================================
+   《潮汐之外》16:9 寬銀幕電影取景、直排宋體主標與非對稱卷軸主選單
+   ========================================================================== */
+
+.stage-root {
+  position: relative;
+  width: 100vw;
+  height: 100dvh;
+  overflow: hidden;
+  background-color: var(--sky-mid);
+}
+
+.scene-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+#scene-gl { z-index: 1; }
+#scene-overlay { z-index: 2; pointer-events: none; }
+
+/* P1-1：手作棉紙纖維置頂統一覆蓋海景與所有宣紙頁箋（z-index: 27） */
+.paper-grain-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 27;
+  pointer-events: none;
+  opacity: var(--grain-opacity);
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23n)' opacity='0.28'/%3E%3C/svg%3E");
+  transition: opacity 280ms ease;
+}
+
+/* 無邊界留白水暈托底：柔化左下主選單與底列對比，宛如濕水彩留白 */
+.mist-reserve-veil {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 42% 52% at 14% 78%, rgba(var(--paper-rgb), 0.56) 0%, rgba(var(--paper-rgb), 0.24) 52%, rgba(var(--paper-rgb), 0) 100%),
+    radial-gradient(ellipse 26% 36% at 88% 24%, rgba(var(--paper-rgb), 0.42) 0%, rgba(var(--paper-rgb), 0) 100%),
+    linear-gradient(to top, rgba(var(--paper-rgb), 0.52) 0%, rgba(var(--paper-rgb), 0.16) 72px, rgba(var(--paper-rgb), 0) 140px);
+  transition: opacity 500ms var(--ease-tide);
+}
+
+.stage-root[data-view="credits"] .mist-reserve-veil,
+.stage-root[data-view="farewell"] .mist-reserve-veil {
+  opacity: 0.72;
+}
+
+/* 東亞精裝版畫外框（P0-5：z-index 26 確保全流程含退潮頁始終收束畫幅） */
+.cinema-frame {
+  position: absolute;
+  inset: var(--frame-inset);
+  border: 1px solid var(--line-frame);
+  pointer-events: none;
+  z-index: 26;
+  transition: border-color var(--dur-palette) var(--ease-tide), opacity 480ms ease;
+}
+
+.frame-tick {
+  position: absolute;
+  width: 9px;
+  height: 9px;
+}
+
+.frame-tick::before,
+.frame-tick::after {
+  content: "";
+  position: absolute;
+  background-color: var(--ink-secondary);
+  opacity: 0.45;
+}
+
+.frame-tick::before { width: 9px; height: 1px; }
+.frame-tick::after { width: 1px; height: 9px; }
+
+.tick-tl { top: -1px; left: -1px; }
+.tick-tl::before { top: 0; left: 0; }
+.tick-tl::after { top: 0; left: 0; }
+
+.tick-tr { top: -1px; right: -1px; }
+.tick-tr::before { top: 0; right: 0; }
+.tick-tr::after { top: 0; right: 0; }
+
+.tick-bl { bottom: -1px; left: -1px; }
+.tick-bl::before { bottom: 0; left: 0; }
+.tick-bl::after { bottom: 0; left: 0; }
+
+.tick-br { bottom: -1px; right: -1px; }
+.tick-br::before { bottom: 0; right: 0; }
+.tick-br::after { bottom: 0; right: 0; }
+
+/* ==========================================================================
+   主標題畫面層（Title Layer）
+   ========================================================================== */
+.title-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 12;
+  transition: opacity 440ms var(--ease-tide), transform 520ms var(--ease-tide);
+}
+
+.stage-root:not([data-view="title"]) .title-layer {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-6px);
+}
+
+/* 右上直排宋體題款（與 66% 燈塔明確錯位） */
+.title-inscription {
+  position: absolute;
+  top: clamp(44px, 7.2vh, 84px);
+  right: var(--edge-x);
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 22px;
+  pointer-events: none;
+}
+
+/* P1-4：直排題辭收束於「潮」方印上方約半字至一字處，嚴守東亞書法款識比例 */
+.inscription-epigraph {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  line-break: strict;
+  hanging-punctuation: allow-end;
+  font-family: var(--font-serif);
+  font-weight: 300;
+  font-size: calc(0.84rem * var(--font-scale));
+  letter-spacing: 0.20em;
+  line-height: 1.85;
+  color: var(--ink-secondary);
+  padding-top: 4px;
+  max-height: 46vh;
+}
+
+.inscription-sub-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding-top: 6px;
+  transition: opacity 320ms var(--ease-tide);
+}
+
+.inscription-sub-col.is-hidden {
+  opacity: 0;
+}
+
+.sub-hairline {
+  width: 1px;
+  height: 32px;
+  background-color: var(--line-subtle);
+}
+
+.title-en {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  font-family: var(--font-display-en);
+  font-weight: 400;
+  font-size: calc(0.75rem * var(--font-scale));
+  letter-spacing: 0.42em;
+  line-height: 1;
+  color: var(--ink-secondary);
+}
+
+.inscription-main-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.title-zh {
+  writing-mode: vertical-rl;
+  text-orientation: upright;
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: calc(clamp(2.35rem, 4.0vw, 3.45rem) * var(--font-scale));
+  letter-spacing: 0.34em;
+  line-height: 1.18;
+  color: var(--ink-primary);
+  text-shadow: 0 0 28px rgba(var(--paper-rgb), 0.52);
+}
+
+/* 18px × 18px 極克制細線方印（印泥強調色） */
+.title-seal {
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  font-family: var(--font-serif);
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1;
+  opacity: 0.88;
+}
+
+/* ==========================================================================
+   左下非對稱卷軸目錄主選單（零底盒、零外框、1px 水墨游標）
+   ========================================================================== */
+.main-menu {
+  position: absolute;
+  left: var(--edge-x);
+  bottom: clamp(74px, 10.2vh, 122px);
+  width: min(320px, 42vw);
+}
+
+.menu-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(10px, 1.45vh, 15px);
+}
+
+.menu-btn {
+  position: relative;
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  width: 100%;
+  padding: 5px 12px 5px 0;
+  text-align: left;
+  transition: transform var(--dur-cursor) var(--ease-tide), color var(--dur-cursor) ease;
+}
+
+/* P0-6：四周柔散羽化水彩光暈（徹底消除硬邊矩形條）＋游標精準對準首行光學中線 */
+.menu-btn::before {
+  content: "";
+  position: absolute;
+  inset: -8px -18px -8px -24px;
+  background: radial-gradient(ellipse 72% 85% at 18% 50%, rgba(var(--accent-rgb), 0.085) 0%, rgba(var(--accent-rgb), 0.025) 52%, transparent 86%);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--dur-cursor) var(--ease-tide);
+}
+
+.menu-cursor {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  margin-top: 0.72em;
+  gap: 5px;
+  width: 26px;
+  margin-left: -34px;
+  margin-right: 0;
+  opacity: 0;
+  transform: translateX(-8px);
+  transition: opacity var(--dur-cursor) var(--ease-tide), transform var(--dur-cursor) var(--ease-tide);
+}
+
+.cursor-line {
+  display: block;
+  width: 18px;
+  height: 1px;
+  background-color: var(--accent);
+}
+
+.cursor-diamond {
+  display: block;
+  width: 4px;
+  height: 4px;
+  background-color: var(--accent);
+  transform: rotate(45deg);
+}
+
+.menu-num {
+  font-family: var(--font-mono);
+  font-weight: 400;
+  font-size: calc(0.75rem * var(--font-scale));
+  letter-spacing: 0.1em;
+  color: var(--ink-secondary);
+  font-variant-numeric: tabular-nums;
+  transition: color var(--dur-cursor) ease;
+}
+
+.menu-text-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.menu-label {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: calc(clamp(1.0625rem, 1.3vw, 1.22rem) * var(--font-scale));
+  letter-spacing: 0.22em;
+  line-height: 1.38;
+  color: var(--ink-primary);
+  transition: font-weight 180ms ease, color var(--dur-cursor) ease;
+}
+
+.menu-meta {
+  font-family: var(--font-sans);
+  font-weight: 400;
+  font-size: calc(0.75rem * var(--font-scale));
+  letter-spacing: 0.06em;
+  color: var(--ink-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+/* 聚焦與懸停狀態：文字右移 8px、左側水墨細線滑出、零廉價彈跳 */
+.menu-btn.is-focused,
+.menu-btn:hover {
+  transform: translateX(8px);
+}
+
+.menu-btn.is-focused::before,
+.menu-btn:hover::before {
+  opacity: 1;
+}
+
+.menu-btn.is-focused .menu-cursor,
+.menu-btn:hover .menu-cursor {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.menu-btn.is-focused .menu-num,
+.menu-btn:hover .menu-num {
+  color: var(--accent);
+}
+
+.menu-btn.is-focused .menu-label,
+.menu-btn:hover .menu-label {
+  font-weight: 500;
+  color: var(--ink-primary);
+}
+
+/* 無存檔時「繼續旅途」反灰不可用態 */
+.menu-btn.is-disabled {
+  opacity: 0.42;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+.menu-btn.is-disabled::before,
+.menu-btn.is-disabled .menu-cursor {
+  opacity: 0 !important;
+}
+
+/* ==========================================================================
+   底部單機按鍵提示列與情境微印
+   ========================================================================== */
+.bottom-bar {
+  position: absolute;
+  left: var(--edge-x);
+  right: var(--edge-x);
+  bottom: clamp(24px, 3.2vh, 36px);
+  z-index: 25;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  pointer-events: none;
+  transition: opacity 420ms var(--ease-tide);
+}
+
+.stage-root[data-view="farewell"] .bottom-bar {
+  opacity: 0;
+}
+
+.key-hints {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.key-hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-family: var(--font-sans);
+  font-size: calc(0.75rem * var(--font-scale));
+  letter-spacing: 0.08em;
+  color: var(--ink-secondary);
+}
+
+.key-hint kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  height: 20px;
+  padding: 0 6px;
+  border: 1px solid var(--line-subtle);
+  border-radius: 2px;
+  background-color: rgba(var(--paper-rgb), 0.36);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  color: var(--ink-primary);
+}
+
+.locale-stamp {
+  font-family: var(--font-mono);
+  font-size: calc(0.75rem * var(--font-scale));
+  letter-spacing: 0.1em;
+  color: var(--ink-secondary);
+  font-variant-numeric: tabular-nums;
+}
